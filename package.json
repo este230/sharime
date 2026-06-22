@@ -1,0 +1,15 @@
+{
+  "name": "sharime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sharimie — an auto video editor for travel montages, powered by ALAMO.",
+  "scripts": {
+    "start": "node server.mjs",
+    "seed-music": "node scripts/seed-music.mjs",
+    "setup-matte": "node scripts/setup-matte.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

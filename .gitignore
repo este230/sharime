@@ -1,0 +1,70 @@
+# uploaded media, segment cache, and renders — large + per-user
+data/
+
+# generated starter music beds (regenerate with `npm run seed-music`)
+music/*.mp3
+music/*.wav
+
+# matting runtime (large; recreate with `npm run setup-matte`)
+matte/venv/
+matte/models/
+matte/install.log
+
+# logs / os cruft
+*.log
+Thumbs.db
+.DS_Store
+node_modules/
+
+# --- portfolio backup .gitignore ---
+# dependencies & build
+node_modules/
+.venv/
+venv/
+env/
+dist/
+build/
+out/
+release/
+.next/
+__pycache__/
+*.pyc
+
+# secrets - never commit (keeps .env.example)
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+
+# local data - never publish
+data/
+.data/
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# large binaries / media
+*.exe
+*.zip
+*.7z
+*.mp4
+*.mov
+*.mkv
+models/
+
+# internal dev / agent context (not part of the app)
+AGENTS.md
+CLAUDE.md
+HERMES.md
+STATE.md
+PI.md
+decisions.md
+context/
+.claude/
+
+# OS / editor
+.DS_Store
+Thumbs.db

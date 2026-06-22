@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sharimie</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">Sharimie</span>
+      <span class="brand-tag">video studio</span>
+    </div>
+    <div class="brand-right">
+      <button id="homeBtn" class="ghost-btn" hidden>All trips</button>
+      <div class="alamo-badge" id="alamoBadge" title="ALAMO editing brain">
+        <span class="dot" id="alamoDot"></span>
+        <span>Powered by ALAMO</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="quote-bar" id="quoteBar"><span class="quote-text" id="quoteText"></span></div>
+
+  <main id="app" class="app"><!-- views render here --></main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

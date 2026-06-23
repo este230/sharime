@@ -46,6 +46,24 @@ function setJob(projectId, patch) {
   return next
 }
 
+function musicEditDuration(music) {
+  if (!music) return 0
+  const duration = Math.max(0, Number(music.duration) || 0)
+  const start = Math.max(0, Math.min(Number(music.start) || 0, Math.max(0, duration - 0.1)))
+  const end = Number(music.end) || 0
+  if (end > start + 0.1) return Math.max(0.1, Math.min(end, duration || end) - start)
+  return Math.max(0.1, duration - start)
+}
+
+function musicEditBeats(music) {
+  const start = Math.max(0, Number(music?.start) || 0)
+  const span = musicEditDuration(music)
+  const shifted = (music?.beats || [])
+    .filter((b) => b >= start && b <= start + span + 0.001)
+    .map((b) => Math.round((b - start) * 1000) / 1000)
+  return shifted.length > 1 ? shifted : (music?.beats || [])
+}
+
 // ---- tiny response helpers --------------------------------------------------
 function sendJson(res, code, obj) {
   const body = JSON.stringify(obj)
@@ -118,7 +136,7 @@ async function runAutoEdit(project, notes) {
         notes,
         clipCount: project.clips.length,
         musicBpm: project.music.bpm,
-        musicSeconds: project.music.duration,
+        musicSeconds: musicEditDuration(project.music),
         preset: project.canvas.preset,
       })
     } else {
@@ -129,9 +147,9 @@ async function runAutoEdit(project, notes) {
     setJob(id, { percent: 70, phase: 'cutting', message: 'Cutting to the beat…' })
     const { edl, totalDuration } = buildEdl({
       clips: project.clips,
-      beats: project.music.beats,
+      beats: musicEditBeats(project.music),
       recipe,
-      musicSeconds: project.music.duration,
+      musicSeconds: musicEditDuration(project.music),
       title: project.name,
     })
 
@@ -161,6 +179,7 @@ async function runRender(project) {
       edl: project.edl,
       clipsById,
       musicFile: project.music.file,
+      music: project.music,
       segmentsDir: subdir(id, 'segments'),
       workDir: subdir(id, 'work'),
       outFile: join(subdir(id, 'output'), 'final.mp4'),
@@ -321,6 +340,18 @@ async function handle(req, res) {
       await saveProject(project)
       return sendJson(res, 201, { music: publicMusic(project.music) })
     }
+    if (sub === 'music' && seg.length === 4 && (method === 'PUT' || method === 'PATCH')) {
+      if (!project.music?.file) return bad(res, 'Choose music first.')
+      const body = await readJsonBody(req)
+      const duration = Math.max(0, Number(project.music.duration) || 0)
+      const start = Math.max(0, Math.min(Number(body.start) || 0, Math.max(0, duration - 0.1)))
+      const rawEnd = Number(body.end) || 0
+      const end = rawEnd > start + 0.1 ? Math.min(rawEnd, duration || rawEnd) : 0
+      project.music.start = Math.round(start * 100) / 100
+      project.music.end = end ? Math.round(end * 100) / 100 : 0
+      await saveProject(project)
+      return sendJson(res, 200, { music: publicMusic(project.music) })
+    }
     // music pick from library
     if (sub === 'music' && seg[4] === 'select' && method === 'POST') {
       const body = await readJsonBody(req)
@@ -456,7 +487,7 @@ async function handle(req, res) {
 }
 
 function publicMusic(m) {
-  return { name: m.name, source: m.source, duration: m.duration, bpm: m.bpm, beatCount: m.beats?.length || 0 }
+  return { name: m.name, source: m.source, duration: m.duration, bpm: m.bpm, beatCount: m.beats?.length || 0, start: m.start || 0, end: m.end || 0 }
 }
 
 const ADJUST_KEYS = ['exposure', 'contrast', 'saturation', 'warmth', 'sharpness', 'shadows', 'highlights', 'vignette']

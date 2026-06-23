@@ -5,8 +5,9 @@ const state = { view: 'home', projects: [], project: null, library: [], alamo: n
 const GRADES = [
   'natural', 'warm', 'golden-hour', 'teal-orange', 'cinematic-teal', 'cool-cinematic',
   'muted-cool', 'moody', 'noir', 'bleach-bypass', 'film-fade', 'cyber-neon',
-  'vibrant', 'dreamy', 'vintage',
+  'vibrant', 'kodak-warm', 'fuji-vivid', 'cross-process', 'slate', 'ember', 'dreamy', 'vintage',
 ]
+const TRANSITIONS = [['cut', 'Cut'], ['crossfade', 'Crossfade'], ['dip-to-black', 'Dip to black'], ['wipe-left', 'Wipe left'], ['wipe-right', 'Wipe right']]
 
 const $ = (s, r = document) => r.querySelector(s)
 const $$ = (s, r = document) => [...r.querySelectorAll(s)]
@@ -295,12 +296,33 @@ function renderChosenMusic(card) {
   const p = state.project
   const box = card.querySelector('#chosenMusic')
   if (!p.music) { box.innerHTML = ''; return }
+  const start = Number(p.music.start) || 0
+  const end = Number(p.music.end) || 0
   box.innerHTML = `<div class="chosen-music">
     <span class="badge">Chosen</span>
     <span class="name" style="font-weight:600">${esc(p.music.name)}</span>
     <span class="pill">${fmtDur(p.music.duration)}</span>
     <span class="pill">~${p.music.bpm} BPM</span>
+  </div>
+  <div class="music-region">
+    <label>Use song region</label>
+    <input id="musicStart" type="number" min="0" max="${p.music.duration}" step="0.1" value="${start}" />
+    <span class="muted">to</span>
+    <input id="musicEnd" type="number" min="0" max="${p.music.duration}" step="0.1" value="${end || ''}" placeholder="end" />
+    <button class="ghost-btn" id="musicRegionSave">Save region</button>
+    <span class="muted">blank end uses the rest of the song</span>
   </div>`
+  box.querySelector('#musicRegionSave').onclick = saveMusicRegion
+}
+
+async function saveMusicRegion() {
+  const p = state.project
+  const start = Number($('#musicStart')?.value) || 0
+  const end = Number($('#musicEnd')?.value) || 0
+  try {
+    await api(`/api/projects/${p.id}/music`, { method: 'PUT', json: { start, end } })
+    await refreshProject(); renderProject(); toast('Music region saved')
+  } catch (e) { toast(e.message, true) }
 }
 
 async function selectLibraryTrack(name) {
@@ -437,7 +459,7 @@ function reviewCard() {
           </div>`).join('')}</div>
         <div class="row" style="gap:8px;margin-top:8px">
           <label class="look-label" style="margin:0;flex:0 0 auto">Transition</label>
-          <select id="transSel" class="look-select" style="flex:1">${['cut', 'crossfade', 'dip-to-black'].map((t) => `<option value="${t}" ${r.transition === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+          <select id="transSel" class="look-select" style="flex:1">${TRANSITIONS.map(([v, l]) => `<option value="${v}" ${r.transition === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         </div>
         <div class="row" style="gap:8px;margin-top:12px">
           <button class="ghost-btn" id="resetLook">Reset look</button>
@@ -525,8 +547,14 @@ function renderShotTextEditor() {
   const has = t && String(t.content || '').trim()
   box.innerHTML = `
     <div class="text-editor">
-      <div class="te-head">Text on shot ${state.sel + 1} <span class="muted" style="font-weight:400">— drag it on the preview to place</span></div>
-      <textarea id="teContent" class="te-content" placeholder="Add a title or place name…">${esc(has ? t.content : '')}</textarea>
+    <div class="te-head">Shot ${state.sel + 1} controls <span class="muted" style="font-weight:400">— per-shot look, transition, and text</span></div>
+    <div class="shot-polish">
+      <label><span>Color</span><select id="shotGrade" class="look-select">${GRADES.map((g) => `<option value="${g}" ${(seg.grade || 'natural') === g ? 'selected' : ''}>${g}</option>`).join('')}</select></label>
+      <label><span>Transition in</span><select id="shotTrans" class="look-select" ${state.sel === 0 ? 'disabled' : ''}>${TRANSITIONS.map(([v, l]) => `<option value="${v}" ${(seg.transition || 'cut') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label><span>Blend</span><input id="shotTransDur" type="number" min="0.08" max="0.75" step="0.05" value="${Number(seg.transitionDur || 0.3).toFixed(2)}" ${state.sel === 0 || seg.transition === 'cut' ? 'disabled' : ''}/></label>
+    </div>
+    <div class="te-head" style="margin-top:12px">Text <span class="muted" style="font-weight:400">— drag it on the preview to place</span></div>
+    <textarea id="teContent" class="te-content" placeholder="Add a title or place name…">${esc(has ? t.content : '')}</textarea>
       <div class="te-row">
         <div class="te-group"><span>Font</span><div class="te-opts" id="teFont">${FONT_OPTS.map(([v, l]) => `<button data-v="${v}" class="${(t && t.font || 'sans') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
         <div class="te-group"><span>Size</span><div class="te-opts" id="teSize">${SIZE_OPTS.map(([v, l]) => `<button data-v="${v}" class="${(t && t.size || 'md') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
@@ -542,6 +570,14 @@ function renderShotTextEditor() {
       ${has ? '<button class="ghost-btn" id="teRemove" style="margin-top:8px">Remove text</button>' : ''}
     </div>`
   const ensure = () => { const s = state.project.edl[state.sel]; if (!s.text) s.text = { content: '', x: 0.5, y: 0.85, size: 'md', font: 'sans', color: '#ffffff', anim: 'fade' }; return s.text }
+  box.querySelector('#shotGrade').onchange = (e) => { state.project.edl[state.sel].grade = e.target.value; updatePreviewFrame(); rerenderTimeline(); persistEdl() }
+  box.querySelector('#shotTrans').onchange = (e) => {
+    const s = state.project.edl[state.sel]
+    s.transition = e.target.value
+    s.transitionDur = e.target.value === 'cut' ? 0 : Math.max(0.08, Number(s.transitionDur) || 0.3)
+    renderShotTextEditor(); rerenderTimeline(); persistEdl()
+  }
+  box.querySelector('#shotTransDur').onchange = (e) => { state.project.edl[state.sel].transitionDur = Math.max(0.08, Math.min(0.75, Number(e.target.value) || 0.3)); persistEdl() }
   box.querySelector('#teContent').oninput = (e) => {
     const cur = state.project.edl[state.sel].text
     const wasHas = !!(cur && String(cur.content || '').trim())
@@ -607,6 +643,7 @@ function renderTimeline(tl) {
       <span class="num">${i + 1}</span>
       <div class="ph"><img src="${clipThumb(seg.clipId)}" loading="lazy" />${hasText ? `<span class="text-tag">${esc(seg.text.content).slice(0, 22)}</span>` : ''}</div>
       <div class="info">${esc(clipName(seg.clipId)).slice(0, 18)} &middot; ${seg.dur.toFixed(1)}s</div>
+      <div class="shot-tags"><span>${esc(seg.grade || 'natural')}</span>${i > 0 && seg.transition !== 'cut' ? `<span>${esc(seg.transition || 'crossfade')}</span>` : ''}</div>
       <div class="ctrls">
         <div class="dur-ctrl"><button data-act="minus">−</button><button data-act="plus">+</button></div>
         <button data-act="text" class="${hasText ? 'has-text' : ''}" title="Add text">T</button>

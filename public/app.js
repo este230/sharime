@@ -423,6 +423,16 @@ const FONT_OPTS = [['sans', 'Sans'], ['serif', 'Serif'], ['display', 'Bold'], ['
 const SIZE_OPTS = [['sm', 'S'], ['md', 'M'], ['lg', 'L'], ['xl', 'XL']]
 const ANIM_OPTS = [['none', 'None'], ['fade', 'Fade'], ['slide-up', 'Slide up'], ['slide-down', 'Slide down'], ['pop', 'Pop']]
 const SLIDERS = [['sharpness', 'Sharpness'], ['shadows', 'Shadows'], ['highlights', 'Highlights'], ['contrast', 'Contrast'], ['saturation', 'Saturation'], ['warmth', 'Warmth'], ['exposure', 'Exposure'], ['vignette', 'Vignette']]
+const SLIDER_HELP = {
+  sharpness: 'Clarifies details. Keep it light for phone clips.',
+  shadows: 'Lift dark areas without changing the whole shot.',
+  highlights: 'Tames bright sky, sand, and water glare.',
+  contrast: 'Adds punch or softens the image.',
+  saturation: 'Controls how rich the colors feel.',
+  warmth: 'Warmer for sunsets, cooler for a clean cinematic feel.',
+  exposure: 'Brightens or darkens the full shot.',
+  vignette: 'Adds a subtle edge shade to draw the eye inward.',
+}
 const FONT_CSS = { sans: '"Segoe UI Semibold","Segoe UI",sans-serif', serif: 'Georgia,"Times New Roman",serif', display: 'Impact,Haettenschweiler,sans-serif', light: '"Segoe UI Light","Segoe UI",sans-serif' }
 const ADJ_KEYS = ['exposure', 'contrast', 'saturation', 'warmth', 'sharpness', 'shadows', 'highlights', 'vignette']
 
@@ -436,6 +446,7 @@ function reviewCard() {
   card.innerHTML = `
     <div class="step-head"><span class="step-num">5</span><h2>Review &amp; fine-tune</h2></div>
     <div class="sub">Tap a shot to preview it. Tune the look, drag the text where you want it, then render.</div>
+    <div class="review-help">Start with the big color look, then make small slider moves. Shot controls below the preview only affect the selected shot.</div>
     <div class="row spread" style="margin:6px 0 14px">
       <div class="vibe">${esc(r.vibe || 'Travel cut')} <span class="badge">${r.source === 'alamo' ? 'ALAMO' : 'built-in'}</span></div>
       <div class="muted" style="font-size:12.5px">${p.edl.length} shots &middot; ${fmtDur(p.edl.reduce((s, x) => s + x.dur, 0))}</div>
@@ -452,15 +463,18 @@ function reviewCard() {
       <div class="look-col">
         <label class="look-label">Color look</label>
         <select id="gradeSel" class="look-select">${GRADES.map((g) => `<option value="${g}" ${r.grade === g ? 'selected' : ''}>${g}</option>`).join('')}</select>
+        <div class="control-help">Sets the overall mood for the whole edit. You can override one shot below if it needs special treatment.</div>
         <div class="sliders">${SLIDERS.map(([k, l]) => `
           <div class="slider-row">
             <label>${l}<span class="sval" id="sval-${k}">${p.adjust[k] || 0}</span></label>
             <input type="range" min="-100" max="100" value="${p.adjust[k] || 0}" data-adj="${k}" />
+            <div class="control-help">${SLIDER_HELP[k]}</div>
           </div>`).join('')}</div>
         <div class="row" style="gap:8px;margin-top:8px">
           <label class="look-label" style="margin:0;flex:0 0 auto">Transition</label>
           <select id="transSel" class="look-select" style="flex:1">${TRANSITIONS.map(([v, l]) => `<option value="${v}" ${r.transition === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         </div>
+        <div class="control-help">Default transition between shots. Use cuts for crisp beat edits; fades and wipes add a softer handoff.</div>
         <div class="row" style="gap:8px;margin-top:12px">
           <button class="ghost-btn" id="resetLook">Reset look</button>
           <button class="ghost-btn" id="recutBtn">Re-cut</button>
@@ -548,13 +562,15 @@ function renderShotTextEditor() {
   box.innerHTML = `
     <div class="text-editor">
     <div class="te-head">Shot ${state.sel + 1} controls <span class="muted" style="font-weight:400">— per-shot look, transition, and text</span></div>
+    <div class="inline-help">Use this when one clip needs its own color, a softer entrance, or a place-name card.</div>
     <div class="shot-polish">
-      <label><span>Color</span><select id="shotGrade" class="look-select">${GRADES.map((g) => `<option value="${g}" ${(seg.grade || 'natural') === g ? 'selected' : ''}>${g}</option>`).join('')}</select></label>
-      <label><span>Transition in</span><select id="shotTrans" class="look-select" ${state.sel === 0 ? 'disabled' : ''}>${TRANSITIONS.map(([v, l]) => `<option value="${v}" ${(seg.transition || 'cut') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
-      <label><span>Blend</span><input id="shotTransDur" type="number" min="0.08" max="0.75" step="0.05" value="${Number(seg.transitionDur || 0.3).toFixed(2)}" ${state.sel === 0 || seg.transition === 'cut' ? 'disabled' : ''}/></label>
+      <label><span>Color</span><select id="shotGrade" class="look-select">${GRADES.map((g) => `<option value="${g}" ${(seg.grade || 'natural') === g ? 'selected' : ''}>${g}</option>`).join('')}</select><small>Only this shot; use natural to keep it simple.</small></label>
+      <label><span>Transition in</span><select id="shotTrans" class="look-select" ${state.sel === 0 ? 'disabled' : ''}>${TRANSITIONS.map(([v, l]) => `<option value="${v}" ${(seg.transition || 'cut') === v ? 'selected' : ''}>${l}</option>`).join('')}</select><small>${state.sel === 0 ? 'First shot starts clean.' : 'How this shot enters from the previous one.'}</small></label>
+      <label><span>Blend</span><input id="shotTransDur" type="number" min="0.08" max="0.75" step="0.05" value="${Number(seg.transitionDur || 0.3).toFixed(2)}" ${state.sel === 0 || seg.transition === 'cut' ? 'disabled' : ''}/><small>Seconds of overlap for fades or wipes.</small></label>
     </div>
     <div class="te-head" style="margin-top:12px">Text <span class="muted" style="font-weight:400">— drag it on the preview to place</span></div>
     <textarea id="teContent" class="te-content" placeholder="Add a title or place name…">${esc(has ? t.content : '')}</textarea>
+      <div class="inline-help">Short text works best: location, date, or one calm phrase.</div>
       <div class="te-row">
         <div class="te-group"><span>Font</span><div class="te-opts" id="teFont">${FONT_OPTS.map(([v, l]) => `<button data-v="${v}" class="${(t && t.font || 'sans') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
         <div class="te-group"><span>Size</span><div class="te-opts" id="teSize">${SIZE_OPTS.map(([v, l]) => `<button data-v="${v}" class="${(t && t.size || 'md') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>

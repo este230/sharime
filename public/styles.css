@@ -187,6 +187,20 @@ textarea.notes:focus { outline: none; border-color: var(--teal); }
 .review-toolbar label { font-size: 12px; color: var(--muted); }
 .review-toolbar select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; font-family: inherit; font-size: 13px; }
 .vibe { font-style: italic; color: var(--teal-deep); }
+.review-help, .inline-help, .control-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.review-help {
+  margin: -6px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(42,157,143,.045);
+}
+.inline-help { margin: -3px 0 10px; }
+.control-help { margin-top: 3px; }
 
 /* ---- review studio: preview + look panel ---- */
 .studio { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; margin: 8px 0 16px; align-items: start; }
@@ -208,6 +222,7 @@ textarea.notes:focus { outline: none; border-color: var(--teal); }
 .shot-polish { display: grid; grid-template-columns: 1fr 1fr 90px; gap: 8px; align-items: end; }
 .shot-polish label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
 .shot-polish input { border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; font-family: inherit; font-size: 13px; background: var(--card); }
+.shot-polish small { text-transform: none; letter-spacing: 0; line-height: 1.35; }
 @media (max-width: 760px) { .shot-polish { grid-template-columns: 1fr; } }
 .te-content { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 14px; resize: vertical; min-height: 44px; }
 .te-content:focus { outline: none; border-color: var(--teal); }
@@ -279,4 +294,22 @@ textarea.notes:focus { outline: none; border-color: var(--teal); }
 @media (max-width: 640px) {
   .app { padding: 20px 16px 60px; }
   .hero h1 { font-size: 30px; }
+  .topbar { padding: 14px 16px; align-items: flex-start; gap: 12px; }
+  .brand { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .brand-mark { font-size: 22px; }
+  .brand-tag { font-size: 9.5px; letter-spacing: 2px; }
+  .brand-right { gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .alamo-badge { padding: 6px 9px; letter-spacing: 1.4px; }
+  .card { padding: 18px 16px; }
+  .project-title-row, .row.spread { align-items: stretch; flex-direction: column; }
+  .project-title { font-size: 25px; }
+  .studio { gap: 14px; }
+  .preview-stage { max-height: none; }
+  .look-col { gap: 9px; }
+  .timeline { gap: 12px; margin: 0 -16px; padding: 8px 16px 18px; scroll-snap-type: x mandatory; }
+  .shot { width: 150px; scroll-snap-align: start; }
+  .shot .ctrls button { min-width: 32px; min-height: 30px; }
+  .te-row { gap: 12px; }
+  .te-group { width: 100%; }
+  .te-opts, .te-swatches { flex-wrap: wrap; }
 }

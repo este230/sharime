@@ -132,6 +132,7 @@ async function runAutoEdit(project, notes) {
       beats: project.music.beats,
       recipe,
       musicSeconds: project.music.duration,
+      title: project.name,
     })
 
     project.recipe = recipe

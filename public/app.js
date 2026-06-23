@@ -447,6 +447,14 @@ function reviewCard() {
     <div class="step-head"><span class="step-num">5</span><h2>Review &amp; fine-tune</h2></div>
     <div class="sub">Tap a shot to preview it. Tune the look, drag the text where you want it, then render.</div>
     <div class="review-help">Start with the big color look, then make small slider moves. Shot controls below the preview only affect the selected shot.</div>
+    <details class="phone-pass">
+      <summary>Phone-size review pass</summary>
+      <ul>
+        <li>Watch the first ten seconds on the phone: the opening shot should read clearly without scrubbing.</li>
+        <li>Keep place text short and inside the safe middle of the preview so it survives Reels and phone controls.</li>
+        <li>If a clip feels cramped, shorten it here or switch that trip to Vertical before the final render.</li>
+      </ul>
+    </details>
     <div class="row spread" style="margin:6px 0 14px">
       <div class="vibe">${esc(r.vibe || 'Travel cut')} <span class="badge">${r.source === 'alamo' ? 'ALAMO' : 'built-in'}</span></div>
       <div class="muted" style="font-size:12.5px">${p.edl.length} shots &middot; ${fmtDur(p.edl.reduce((s, x) => s + x.dur, 0))}</div>
@@ -482,7 +490,7 @@ function reviewCard() {
       </div>
     </div>
     <div class="timeline" id="timeline"></div>
-    <div class="row" style="margin-top:16px"><button class="btn lg" id="renderBtn">Render video</button></div>
+    <div class="review-render-row"><button class="btn lg" id="renderBtn">Render video</button></div>
     <div id="renderProgress"></div>`
   card.querySelector('#gradeSel').onchange = (e) => { applyGlobal('grade', e.target.value); updatePreviewFrame() }
   card.querySelector('#transSel').onchange = (e) => applyGlobal('transition', e.target.value)

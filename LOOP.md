@@ -6,13 +6,15 @@ _Autopilot control file. ALAMO reads and updates this every cycle._
 - State: RUNNING
 - Mode: backlog-then-self
 - Cadence: 900
-- Cycle: 6
-- Last commit: 6dfa40a
+- Cycle: 8
+- Last commit: a420f22
 
 ## Backlog
 - [ ] (queue your ideas here, most important first)
 
 ## Cycle log
+- c8 (2026-06-24): Shipped conservative phone-review feedback tuning for the next draft recipe: pacing, color warmth/coolness, transition feel, and safer title placement now respond to saved notes. — a420f22
+- c7 (2026-06-24): Shipped persistent phone-review feedback notes on finished videos, and re-cut now feeds those notes into the next draft request. — 9381fe1
 - c6 (2026-06-23): Added a phone-size Review pass checklist and sticky full-width mobile render action, verified against the loaded Smoke Trip project. — 6dfa40a
 - c5 (2026-06-23): Refined the mobile Review layout and added friendly inline help across polish controls. — 654dd22
 _Newest first._

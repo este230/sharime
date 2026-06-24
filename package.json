@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.mjs",
     "seed-music": "node scripts/seed-music.mjs",
-    "setup-matte": "node scripts/setup-matte.mjs"
+    "setup-matte": "node scripts/setup-matte.mjs",
+    "compare-phone-recut": "node scripts/compare-phone-recut.mjs"
   },
   "engines": {
     "node": ">=20"

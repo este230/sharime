@@ -64,6 +64,10 @@ function musicEditBeats(music) {
   return shifted.length > 1 ? shifted : (music?.beats || [])
 }
 
+function sanitizeReviewFeedback(value) {
+  return String(value || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').slice(0, 1200)
+}
+
 // ---- tiny response helpers --------------------------------------------------
 function sendJson(res, code, obj) {
   const body = JSON.stringify(obj)
@@ -277,6 +281,7 @@ async function handle(req, res) {
           project.canvas = { ...PRESETS[body.preset], preset: body.preset }
         }
         if (body.adjust && typeof body.adjust === 'object') project.adjust = sanitizeAdjust(body.adjust)
+        if (typeof body.reviewFeedback === 'string') project.reviewFeedback = sanitizeReviewFeedback(body.reviewFeedback)
         await saveProject(project)
         return sendJson(res, 200, { project })
       }

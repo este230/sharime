@@ -411,8 +411,9 @@ function draftCard() {
 
 async function startDraft() {
   const p = state.project
+  const notes = [state.notes, p.reviewFeedback ? `Phone review feedback: ${p.reviewFeedback}` : ''].filter(Boolean).join('\n\n')
   try {
-    await api(`/api/projects/${p.id}/auto-edit`, { method: 'POST', json: { notes: state.notes } })
+    await api(`/api/projects/${p.id}/auto-edit`, { method: 'POST', json: { notes } })
     pollJob('autoedit', '#draftProgress')
   } catch (e) { toast(e.message, true) }
 }
@@ -651,6 +652,16 @@ function saveAdjust() {
   }, 400)
 }
 
+let feedbackTimer
+function saveReviewFeedback(value) {
+  state.project.reviewFeedback = value
+  clearTimeout(feedbackTimer)
+  feedbackTimer = setTimeout(async () => {
+    try { await api(`/api/projects/${state.project.id}`, { method: 'PUT', json: { reviewFeedback: state.project.reviewFeedback || '' } }) }
+    catch (e) { toast(e.message, true) }
+  }, 500)
+}
+
 let dragIndex = null
 function renderTimeline(tl) {
   const p = state.project
@@ -795,7 +806,14 @@ function outputCard() {
     <div class="row" style="margin-top:14px;gap:10px">
       <a class="btn" href="${src}" download="${esc(p.name)}.mp4">Download</a>
       <span class="muted" style="font-size:12.5px">Tweak the timeline above and render again anytime.</span>
+    </div>
+    <div class="feedback-card">
+      <label for="phoneFeedback">Notes from her phone review</label>
+      <div class="control-help">After she watches the full cut on her phone, jot down what she actually changes or asks for. Use these notes to tune the next draft.</div>
+      <textarea id="phoneFeedback" class="feedback-notes" maxlength="1200" placeholder="Example: intro felt too fast, wanted warmer color, titles were too low behind phone controls…">${esc(p.reviewFeedback || '')}</textarea>
     </div>`
+  const feedback = card.querySelector('#phoneFeedback')
+  feedback.oninput = (e) => saveReviewFeedback(e.target.value)
   return card
 }
 

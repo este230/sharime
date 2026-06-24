@@ -144,7 +144,7 @@ async function runAutoEdit(project, notes) {
         preset: project.canvas.preset,
       })
     } else {
-      recipe = houseRecipe()
+      recipe = houseRecipe({ notes })
     }
     if (notes) recipe.userNotes = String(notes).slice(0, 300)
 

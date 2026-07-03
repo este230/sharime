@@ -3,16 +3,17 @@
 _Autopilot control file. ALAMO reads and updates this every cycle._
 
 ## Status
-- State: RUNNING
+- State: STOPPED
 - Mode: backlog-then-self
 - Cadence: 900
-- Cycle: 10
-- Last commit: f488e13
+- Cycle: 11
+- Last commit: ce98963
 
 ## Backlog
 - [ ] (queue your ideas here, most important first)
 
 ## Cycle log
+- c11 (2026-06-24): Committed ce98963 — ce98963
 - c10 (2026-06-24): Saved Smoke Trip phone review notes into the project, reran the saved-notes phone re-cut comparison, and verified the new report/stills were generated from `project.reviewFeedback`. — f488e13
 - c10 (2026-06-24): Saved Smoke Trip phone review notes to the project and reran the saved-notes phone re-cut comparison, producing a new report and 393px stills for phone review. — 1b0ffe8
 - c9 (2026-06-24): Shipped a real phone re-cut comparison harness that renders before/after video, 393px phone stills, and pacing/color/transition/title metrics; verified with a temporary notes run. — 0ae403f
